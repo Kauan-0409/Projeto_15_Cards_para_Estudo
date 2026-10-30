@@ -11,13 +11,9 @@ Carregue um arquivo de cards que você já tem e comece a estudar.
 **Formato aceito:** arquivo `.json`
 
 > 💡 Ainda não tem um arquivo? Crie seus cards em **✨ Gerar Cards com IA** ou **📄 Gerar Cards com Arquivo**. Os cards gerados podem ser salvos e carregados aqui depois.
-
 """)
 
-
 arquivo = st.file_uploader("Carregue seu arquivo", type=".json")
-
-
 
 
 # =========================
@@ -25,14 +21,19 @@ arquivo = st.file_uploader("Carregue seu arquivo", type=".json")
 # =========================
 
 if arquivo is not None and st.button("Carregar"):
+    try:
+        cards = json.load(arquivo)
 
-    cards = json.load(arquivo)
+        if not isinstance(cards, dict) or not cards:
+            st.error("O arquivo não contém cards válidos.")
+        else:
+            st.session_state["dados"] = cards
+            st.session_state["carregado"] = True
+            st.session_state["pergunta"] = choice(list(cards.keys()))
+            st.session_state["mostrar_resposta"] = False
 
-    st.session_state["dados"] = cards
-    st.session_state["carregado"] = True
-
-    # Escolhe a primeira pergunta
-    st.session_state["pergunta"] = choice(list(cards.keys()))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        st.error("Não foi possível ler o arquivo. Verifique se é um JSON válido.")
 
 
 # =========================
@@ -40,34 +41,28 @@ if arquivo is not None and st.button("Carregar"):
 # =========================
 
 if st.session_state.get("carregado", False):
-
     dados = st.session_state["dados"]
     pergunta = st.session_state["pergunta"]
     resposta = dados[pergunta]
 
     st.success("Arquivo carregado")
 
-    with open("style.txt", "r", encoding="utf-8") as f:
-        estilo = f.read()
+    st.markdown("## Pergunta")
+    st.markdown(f"### {pergunta}")
 
-    st.markdown(estilo, unsafe_allow_html=True)
+    if not st.session_state.get("mostrar_resposta", False):
+        if st.button("Revelar resposta", use_container_width=True):
+            st.session_state["mostrar_resposta"] = True
+            st.rerun()
+    else:
+        st.markdown("## Resposta")
+        st.markdown(str(resposta))
 
-    st.html(f"""
-    <div class="card">
-        <div class="upper-part">
-            <div class="upper-part-face">{pergunta}</div>
-            <div class="upper-part-back">
-                {resposta}
-            </div>
-        </div>
+    if st.button("Outra Pergunta", use_container_width=True):
+        perguntas = list(dados.keys())
+        if len(perguntas) > 1:
+            perguntas.remove(pergunta)
 
-        <div class="lower-part">
-            <div class="lower-part-face">Pergunta</div>
-            <div class="lower-part-back">Resposta</div>
-        </div>
-    </div>
-    """)
-
-    if st.button('Outra Pergunta'):
-        st.session_state["pergunta"] = choice(list(st.session_state["dados"].keys()))
+        st.session_state["pergunta"] = choice(perguntas)
+        st.session_state["mostrar_resposta"] = False
         st.rerun()

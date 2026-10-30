@@ -5,7 +5,7 @@ import streamlit as st
 # ============================================================
 
 st.set_page_config(
-    page_title="Study Cards",
+    page_title="Cards de Estudo",
     page_icon="🧠",
     layout="wide"
     
@@ -14,11 +14,11 @@ st.set_page_config(
 
 # ========================= SIDEBAR
 
-st.sidebar.title('Study Cards')
+st.sidebar.title('Cards de Estudo')
 
 
 # ========================= BODY
-st.title('Study Cards', text_alignment="center")
+st.title('Cards de Estudo', text_alignment="center")
 st.subheader('🧠Estude qualquer assunto com cards de perguntas e respostas.', text_alignment="center")
 st.markdown('---')
 st.write('Crie cards com inteligência artificial a partir de um tema ou de um texto seu, ou carregue cards que você já tem. Depois é só virar, responder e revisar no seu ritmo.')
